@@ -58,9 +58,9 @@ import ViewKomik from '../components/ViewKomik.vue';
             </router-link>
         </div>
 
-        <button @click="openModal(komik.chapters[komik.chapters.length - 1].href)"
+        <button @click="lastChapter ? openModal(komik.chapters.find(item => item.text === lastChapter).href) : openModal(komik.chapters[komik.chapters.length - 1].href)"
             class="bg-red-600 bg-opacity-80 text-white rounded-lg px-2 py-2 mr-2 w-full font-bold mb-4">
-            Start Reading
+            {{ lastChapter ? 'Continue reading ' + lastChapter : 'Read Now' }}
         </button>
 
         <div class="w-full flex justify-between items-center border-b">
@@ -173,6 +173,7 @@ export default {
             progress: 0,
             nameChapter: '',
             bookmarkStatus: false,
+            lastChapter: null,
         }
     },
     async mounted() {
@@ -182,6 +183,9 @@ export default {
 
             this.komik = res.data
             const bookmark = JSON.parse(localStorage.getItem('bookmark')) || []
+            const historyBookmark = JSON.parse(localStorage.getItem('history')) || []
+            const dataBookmark = historyBookmark.find(item => item.slug === this.$route.params.slug)
+            this.lastChapter = dataBookmark ? dataBookmark.last_chapter : null
             const index = bookmark.findIndex(item => item.slug === this.$route.params.slug)
             this.bookmarkStatus = index !== -1 ? true : false
             this.komik.chapters.reverse()
